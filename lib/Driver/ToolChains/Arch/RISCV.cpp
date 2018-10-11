@@ -240,13 +240,12 @@ void riscv::getRISCVTargetFeatures(const Driver &D, const ArgList &Args,
       StringRef Error;
       // Currently LLVM does not support 'e'.
       // Extension 'e' is not allowed in rv64.
-      if (HasRV64)
+      if (HasRV64){
         Error = "standard user-level extension 'e' requires 'rv32'";
+        return;
+      }        
       else
-        Error = "unsupported standard user-level extension 'e'";
-      D.Diag(diag::err_drv_invalid_riscv_arch_name)
-        << MArch << Error;
-      return;
+        Features.push_back("+Embed");
     }
     case 'i':
       break;
