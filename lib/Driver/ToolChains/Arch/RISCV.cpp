@@ -240,11 +240,10 @@ void riscv::getRISCVTargetFeatures(const Driver &D, const ArgList &Args,
       StringRef Error;
       // Currently LLVM does not support 'e'.
       // Extension 'e' is not allowed in rv64.
-      if (HasRV64){
+      if (HasRV64) {
         Error = "standard user-level extension 'e' requires 'rv32'";
         return;
-      }        
-      else
+      } else
         Features.push_back("+Embed");
     }
     case 'i':
