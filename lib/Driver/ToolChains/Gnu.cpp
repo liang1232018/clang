@@ -1396,6 +1396,8 @@ static void findRISCVMultilibs(const Driver &D,
 
   FilterNonExistent NonExistent(Path, "/crtbegin.o", D.getVFS());
   Multilib Ilp32 = makeMultilib("lib32/ilp32").flag("+m32").flag("+mabi=ilp32");
+  Multilib Ilp32e =
+      makeMultilib("lib32/ilp32e").flag("+m32").flag("+mabi=ilp3e");
   Multilib Ilp32f =
       makeMultilib("lib32/ilp32f").flag("+m32").flag("+mabi=ilp32f");
   Multilib Ilp32d =
@@ -1405,7 +1407,7 @@ static void findRISCVMultilibs(const Driver &D,
   Multilib Lp64d = makeMultilib("lib64/lp64d").flag("+m64").flag("+mabi=lp64d");
   MultilibSet RISCVMultilibs =
       MultilibSet()
-          .Either({Ilp32, Ilp32f, Ilp32d, Lp64, Lp64f, Lp64d})
+          .Either({Ilp32, Ilp32e, Ilp32f, Ilp32d, Lp64, Lp64f, Lp64d})
           .FilterOut(NonExistent);
 
   Multilib::flags_list Flags;
