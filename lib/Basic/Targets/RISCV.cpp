@@ -72,10 +72,12 @@ void RISCVTargetInfo::getTargetDefines(const LangOptions &Opts,
 /// Return true if has this feature, need to sync with handleTargetFeatures.
 bool RISCVTargetInfo::hasFeature(StringRef Feature) const {
   bool Is64Bit = getTriple().getArch() == llvm::Triple::riscv64;
+  bool IsRV32E = getTriple().getArch() == llvm::Triple::riscv32e;
   return llvm::StringSwitch<bool>(Feature)
       .Case("riscv", true)
       .Case("riscv32", !Is64Bit)
       .Case("riscv64", Is64Bit)
+      .Case("riscv32e", IsRV32E)
       .Case("m", HasM)
       .Case("a", HasA)
       .Case("f", HasF)

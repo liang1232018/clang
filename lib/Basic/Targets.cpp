@@ -377,6 +377,11 @@ TargetInfo *AllocateTarget(const llvm::Triple &Triple,
     if (os == llvm::Triple::Linux)
       return new LinuxTargetInfo<RISCV32TargetInfo>(Triple, Opts);
     return new RISCV32TargetInfo(Triple, Opts);
+  case llvm::Triple::riscv32e:
+    // TODO: add cases for FreeBSD, NetBSD, RTEMS once tested.
+    if (os == llvm::Triple::Linux)
+      return new LinuxTargetInfo<RISCV32ETargetInfo>(Triple, Opts);
+    return new RISCV32ETargetInfo(Triple, Opts);
   case llvm::Triple::riscv64:
     // TODO: add cases for FreeBSD, NetBSD, RTEMS once tested.
     if (os == llvm::Triple::Linux)

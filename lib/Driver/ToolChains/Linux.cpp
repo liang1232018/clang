@@ -191,7 +191,8 @@ static StringRef getOSLibDir(const llvm::Triple &Triple, const ArgList &Args) {
       Triple.getEnvironment() == llvm::Triple::GNUX32)
     return "libx32";
 
-  if (Triple.getArch() == llvm::Triple::riscv32)
+  if (Triple.getArch() == llvm::Triple::riscv32 ||
+      Triple.getArch() == llvm::Triple::riscv32e)
     return "lib32";
 
   return Triple.isArch32Bit() ? "lib" : "lib64";
@@ -254,8 +255,9 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
   const bool IsAndroid = Triple.isAndroid();
   const bool IsMips = Triple.isMIPS();
   const bool IsHexagon = Arch == llvm::Triple::hexagon;
-  const bool IsRISCV =
-      Arch == llvm::Triple::riscv32 || Arch == llvm::Triple::riscv64;
+  const bool IsRISCV = Arch == llvm::Triple::riscv32 ||
+                       Arch == llvm::Triple::riscv64 ||
+                       Triple.getArch() == llvm::Triple::riscv32e;
 
   if (IsMips && !SysRoot.empty())
     ExtraOpts.push_back("--sysroot=" + SysRoot);
@@ -574,6 +576,8 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
     Loader =
         (tools::ppc::hasPPCAbiArg(Args, "elfv1")) ? "ld64.so.1" : "ld64.so.2";
     break;
+  // not sure whether riscv32e use riscv32-ld,
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv32: {
     StringRef ABIName = tools::riscv::getRISCVABI(Args, Triple);
     LibDir = "lib";

@@ -8865,11 +8865,17 @@ namespace {
 class RISCVABIInfo : public DefaultABIInfo {
 private:
   unsigned XLen; // Size of the integer ('x') registers in bits.
-  static const int NumArgGPRs = 8;
+  static int NumArgGPRs;
 
 public:
   RISCVABIInfo(CodeGen::CodeGenTypes &CGT, unsigned XLen)
-      : DefaultABIInfo(CGT), XLen(XLen) {}
+      : DefaultABIInfo(CGT), XLen(XLen) {
+    if (CGT.getTarget().getTriple().getArch() == llvm::Triple::riscv32e) {
+      NumArgGPRs = 6;
+    } else {
+      NumArgGPRs = 8;
+    }
+  }
 
   // DefaultABIInfo's classifyReturnType and classifyArgumentType are
   // non-virtual, but computeInfo is virtual, so we overload it.
@@ -8884,6 +8890,7 @@ public:
 
   ABIArgInfo extendType(QualType Ty) const;
 };
+int RISCVABIInfo::NumArgGPRs = 8;
 } // end anonymous namespace
 
 void RISCVABIInfo::computeInfo(CGFunctionInfo &FI) const {
@@ -9169,6 +9176,8 @@ const TargetCodeGenInfo &CodeGenModule::getTargetCodeGenInfo() {
     return SetCGInfo(new MSP430TargetCodeGenInfo(Types));
 
   case llvm::Triple::riscv32:
+    return SetCGInfo(new RISCVTargetCodeGenInfo(Types, 32));
+  case llvm::Triple::riscv32e:
     return SetCGInfo(new RISCVTargetCodeGenInfo(Types, 32));
   case llvm::Triple::riscv64:
     return SetCGInfo(new RISCVTargetCodeGenInfo(Types, 64));

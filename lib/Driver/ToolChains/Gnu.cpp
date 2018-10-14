@@ -252,6 +252,8 @@ static const char *getLDMOption(const llvm::Triple &T, const ArgList &Args) {
     return "elf64lppc";
   case llvm::Triple::riscv32:
     return "elf32lriscv";
+  case llvm::Triple::riscv32e:
+    return "elf32lriscv";
   case llvm::Triple::riscv64:
     return "elf64lriscv";
   case llvm::Triple::sparc:
@@ -607,6 +609,7 @@ void tools::gnutools::Assembler::ConstructJob(Compilation &C,
     break;
   }
   case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv64: {
     StringRef ABIName = riscv::getRISCVABI(Args, getToolChain().getTriple());
     CmdArgs.push_back("-mabi");
@@ -842,7 +845,8 @@ static bool isMicroMips(const ArgList &Args) {
 }
 
 static bool isRISCV(llvm::Triple::ArchType Arch) {
-  return Arch == llvm::Triple::riscv32 || Arch == llvm::Triple::riscv64;
+  return Arch == llvm::Triple::riscv32 || Arch == llvm::Triple::riscv64 ||
+         Arch == llvm::Triple::riscv32e;
 }
 
 static Multilib makeMultilib(StringRef commonSuffix) {
@@ -1397,7 +1401,7 @@ static void findRISCVMultilibs(const Driver &D,
   FilterNonExistent NonExistent(Path, "/crtbegin.o", D.getVFS());
   Multilib Ilp32 = makeMultilib("lib32/ilp32").flag("+m32").flag("+mabi=ilp32");
   Multilib Ilp32e =
-      makeMultilib("lib32/ilp32e").flag("+m32").flag("+mabi=ilp3e");
+      makeMultilib("lib32/ilp32e").flag("+m32").flag("+mabi=ilp32e");
   Multilib Ilp32f =
       makeMultilib("lib32/ilp32f").flag("+m32").flag("+mabi=ilp32f");
   Multilib Ilp32d =
@@ -1412,11 +1416,14 @@ static void findRISCVMultilibs(const Driver &D,
 
   Multilib::flags_list Flags;
   bool IsRV64 = TargetTriple.getArch() == llvm::Triple::riscv64;
+  bool IsRV32E = TargetTriple.getArch() == llvm::Triple::riscv32e;
   StringRef ABIName = tools::riscv::getRISCVABI(Args, TargetTriple);
 
   addMultilibFlag(!IsRV64, "m32", Flags);
+  addMultilibFlag(IsRV32E, "m32", Flags);
   addMultilibFlag(IsRV64, "m64", Flags);
   addMultilibFlag(ABIName == "ilp32", "mabi=ilp32", Flags);
+  addMultilibFlag(ABIName == "ilp32e", "mabi=ilp32e", Flags);
   addMultilibFlag(ABIName == "ilp32f", "mabi=ilp32f", Flags);
   addMultilibFlag(ABIName == "ilp32d", "mabi=ilp32d", Flags);
   addMultilibFlag(ABIName == "lp64", "mabi=lp64", Flags);
@@ -2403,6 +2410,7 @@ bool Generic_GCC::IsIntegratedAssemblerDefault() const {
   case llvm::Triple::ppc64:
   case llvm::Triple::ppc64le:
   case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv64:
   case llvm::Triple::systemz:
   case llvm::Triple::mips:
@@ -2551,7 +2559,8 @@ void Generic_ELF::addClangTargetOptions(const ArgList &DriverArgs,
        !getTriple().hasEnvironment()) ||
       getTriple().getOS() == llvm::Triple::Solaris ||
       getTriple().getArch() == llvm::Triple::riscv32 ||
-      getTriple().getArch() == llvm::Triple::riscv64;
+      getTriple().getArch() == llvm::Triple::riscv64 ||
+      getTriple().getArch() == llvm::Triple::riscv32e;
 
   if (DriverArgs.hasFlag(options::OPT_fuse_init_array,
                          options::OPT_fno_use_init_array, UseInitArrayDefault))

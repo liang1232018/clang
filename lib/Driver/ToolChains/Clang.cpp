@@ -333,6 +333,7 @@ static void getTargetFeatures(const ToolChain &TC, const llvm::Triple &Triple,
     ppc::getPPCTargetFeatures(D, Triple, Args, Features);
     break;
   case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv64:
     riscv::getRISCVTargetFeatures(D, Args, Features);
     break;
@@ -520,6 +521,7 @@ static bool useFramePointerForTargetByDefault(const ArgList &Args,
     // WebAssembly never wants frame pointers.
     return false;
   case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv64:
     return !areOptimizationsEnabled(Args);
   default:
@@ -1276,6 +1278,7 @@ static bool isSignedCharDefault(const llvm::Triple &Triple) {
   case llvm::Triple::hexagon:
   case llvm::Triple::ppc64le:
   case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv64:
   case llvm::Triple::systemz:
   case llvm::Triple::xcore:
@@ -1396,6 +1399,7 @@ void Clang::RenderTargetOptions(const llvm::Triple &EffectiveTriple,
     break;
 
   case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32e:
   case llvm::Triple::riscv64:
     AddRISCVTargetArgs(Args, CmdArgs);
     break;
@@ -1699,6 +1703,8 @@ void Clang::AddRISCVTargetArgs(const ArgList &Args,
     ABIName = A->getValue();
   else if (Triple.getArch() == llvm::Triple::riscv32)
     ABIName = "ilp32";
+  else if (Triple.getArch() == llvm::Triple::riscv32e)
+    ABIName = "ilp32e";
   else if (Triple.getArch() == llvm::Triple::riscv64)
     ABIName = "lp64";
   else

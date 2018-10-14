@@ -372,5 +372,7 @@ StringRef riscv::getRISCVABI(const ArgList &Args, const llvm::Triple &Triple) {
   if (Arg *A = Args.getLastArg(options::OPT_mabi_EQ))
     return A->getValue();
 
+  if (Triple.getArch() == llvm::Triple::riscv32e)
+    return "ilp32e";
   return Triple.getArch() == llvm::Triple::riscv32 ? "ilp32" : "lp64";
 }

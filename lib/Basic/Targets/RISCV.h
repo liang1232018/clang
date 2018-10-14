@@ -90,6 +90,25 @@ public:
     return false;
   }
 };
+class LLVM_LIBRARY_VISIBILITY RISCV32ETargetInfo : public RISCVTargetInfo {
+public:
+  RISCV32ETargetInfo(const llvm::Triple &Triple, const TargetOptions &Opts)
+      : RISCVTargetInfo(Triple, Opts) {
+    IntPtrType = SignedInt;
+    PtrDiffType = SignedInt;
+    SizeType = UnsignedInt;
+    resetDataLayout("e-m:e-p:32:32-i64:64-n32-S128");
+  }
+
+  bool setABI(const std::string &Name) override {
+    // TODO: support ilp32e
+    if (Name == "ilp32e") {
+      ABI = Name;
+      return true;
+    }
+    return false;
+  }
+};
 class LLVM_LIBRARY_VISIBILITY RISCV64TargetInfo : public RISCVTargetInfo {
 public:
   RISCV64TargetInfo(const llvm::Triple &Triple, const TargetOptions &Opts)
